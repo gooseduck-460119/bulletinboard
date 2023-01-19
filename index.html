@@ -1,60 +1,68 @@
-<!doctype html>
-<!--[if lt IE 7 ]> <html lang="en" class="ie6"> <![endif]-->
-<!--[if IE 7 ]>    <html lang="en" class="ie7"> <![endif]-->
-<!--[if IE 8 ]>    <html lang="en" class="ie8"> <![endif]-->
-<!--[if IE 9 ]>    <html lang="en" class="ie9"> <![endif]-->
-<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
-<head>
-<meta name="viewport" content="width = 1050, user-scalable = no" />
-<script type="text/javascript" src="../../js/jquery.min.1.7.js"></script>
-<script type="text/javascript" src="../../js/modernizr.2.5.3.min.js"></script>
-</head>
-<body>
-
-<div class="flipbook-viewport">
-	<div class="container">
-		<div class="flipbook">
-			<div style="background-image:url(pages/1.jpg)"></div>
-			<div style="background-image:url(pages/2.jpg)"></div>
-			<div style="background-image:url(pages/3.jpg)"></div>
-			<div style="background-image:url(pages/4.jpg)"></div>
-			<div style="background-image:url(pages/5.jpg)"></div>
-			<div style="background-image:url(pages/6.jpg)"></div>
-			<div style="background-image:url(pages/7.jpg)"></div>
-			<div style="background-image:url(pages/8.jpg)"></div>
-			<div style="background-image:url(pages/9.jpg)"></div>
-			<div style="background-image:url(pages/10.jpg)"></div>
-			<div style="background-image:url(pages/11.jpg)"></div>
-			<div style="background-image:url(pages/12.jpg)"></div>
-		</div>
-	</div>
-</div>
+<DOCTIPE html>
+    <body>
 
 
-<script type="text/javascript">
+        <h1>BBS</h1>
+        <p>
+          <input type="text" id="name" size="10" value="" placeholder="Name">
+          <input type="text" id="msg"  size="50" value="" placeholder="Message">
+        </p>
+        <p>
+          <input type="button" id="post" value="Post">
+        </p>
+        <dl id="data">
+        </dl>
+        
+       
+    </body>
+    <head> 
+    <script>
+            // FileSystemObject 用定数
+var ForReading = 1;
+var ForWriting = 2;
 
-function loadApp() {
+/** BBS のデータファイルのフルパス */
+var BbsFile = "C:/BBS/bbs.txt";
 
-	// Create the flipbook
-
-	$('.flipbook').turn({
-		display:'single',
-
-
-	});
+/** ファイルの読み込み */
+function loadText() {
+  var fso = new ActiveXObject("Scripting.FileSystemObject");
+  var bbs = fso.OpenTextFile(BbsFile, ForReading);
+  return bbs.ReadAll();
 }
 
-// Load the HTML4 version if there's not CSS transform
+/** 投稿内容のロード */
+function load() {
+  $("#data").html(loadText());
+}
 
-yepnope({
-	test : Modernizr.csstransforms,
-	yep: ['../../lib/turn.js'],
-	nope: ['../../lib/turn.html4.min.js'],
-	both: ['css/basic.css'],
-	complete: loadApp
+/** 投稿 */
+function post(name, msg) {
+  // 既存の書き込み内容の取得
+  var data = loadText();
+  
+  // 投稿内容の生成
+  var postData = "<dt>" + name + "</dt>"
+               + "<dd"> + msg  + "</dd>" + "\r\n";
+  
+  // 投稿内容 → 既存の書き込みの順に出力し直す
+  var fso = new ActiveXObject("Scripting.FileSystemObject");
+  var bbs = fso.OpenTextFile(BbsFile, ForWriting);
+  bbs.Write(postData);
+  bbs.Write(data);
+}
+
+/** jQuery */
+$(function() {
+  // 初回読み込み
+  load();
+  
+  // 投稿・再読み込み
+  $("#post").on("click", function() {
+    post($("#name").val(), $("#msg").val());
+    load();
+    $("#msg").val(""); // メッセージは投稿後空欄にする
+  });
 });
-
-</script>
-
-</body>
-</html>
+        </script>
+    </head>
